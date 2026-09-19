@@ -1,6 +1,6 @@
 {
   "name": "fmt",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Keep every Claude reply in the format you choose: concise, elaborate, bulleted, tabular, flow or block diagram, your own instruction, or original.",
   "author": {
     "name": "Inder Sabharwal",
