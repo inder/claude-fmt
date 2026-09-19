@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import subprocess
 import unittest
 
 import helpers
@@ -55,17 +56,30 @@ class PackageTest(unittest.TestCase):
     def test_no_personal_paths_or_addresses_in_repo(self):
         home = re.compile(r"/(Users|home)/(?!user/)[A-Za-z0-9._-]+/")
         address = re.compile(r"[A-Za-z0-9._%+-]+@(gmail|yahoo|outlook|hotmail|icloud)\.com")
+        for rel in tracked_files():
+            with open(os.path.join(helpers.ROOT, rel), encoding="utf-8", errors="ignore") as f:
+                text = f.read()
+            self.assertIsNone(home.search(text), rel)
+            self.assertIsNone(address.search(text), rel)
+
+
+def tracked_files():
+    """Files git tracks or would track (untracked but not ignored), so scratch files don't count."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", helpers.ROOT, "ls-files", "--cached", "--others", "--exclude-standard"],
+            capture_output=True, text=True, check=True, timeout=10,
+        ).stdout
+        return [line for line in out.splitlines() if line]
+    except (OSError, subprocess.SubprocessError):
+        files = []
         for dirpath, dirnames, filenames in os.walk(helpers.ROOT):
             dirnames[:] = [d for d in dirnames if d not in SKIP_NAMES]
-            for name in filenames:
-                if name in SKIP_NAMES:
-                    continue
-                full = os.path.join(dirpath, name)
-                with open(full, encoding="utf-8", errors="ignore") as f:
-                    text = f.read()
-                rel = os.path.relpath(full, helpers.ROOT)
-                self.assertIsNone(home.search(text), rel)
-                self.assertIsNone(address.search(text), rel)
+            files.extend(
+                os.path.relpath(os.path.join(dirpath, n), helpers.ROOT)
+                for n in filenames if n not in SKIP_NAMES
+            )
+        return files
 
 
 if __name__ == "__main__":

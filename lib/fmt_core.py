@@ -61,6 +61,7 @@ def read_state(path=None):
         custom = ""
     if mode == "custom" and not custom.strip():
         return default_state()
+    custom = custom[:MAX_CUSTOM_CHARS]
     state = default_state()
     state.update(mode=mode, custom=custom if mode == "custom" else "")
     if isinstance(data.get("updated_at"), str):

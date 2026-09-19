@@ -18,6 +18,12 @@ import fmt_core  # noqa: E402
 
 
 def main(argv):
+    # The messages contain "\u2192"; on a legacy locale an unencodable character must
+    # not turn a successful change into a traceback.
+    try:
+        sys.stdout.reconfigure(errors="replace")
+    except (AttributeError, ValueError):
+        pass
     command = argv[1] if len(argv) > 1 else "get"
     rest = " ".join(argv[2:])
     if command == "mode":

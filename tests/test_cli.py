@@ -49,8 +49,19 @@ class CliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("mode → block", result.stdout)
 
-    def test_is_executable(self):
+    def test_runs_through_its_own_shebang(self):
         self.assertTrue(os.access(helpers.CLI, os.X_OK))
+        result = helpers.run_cli(["mode", "concise"], self.path, via_shebang=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("mode \u2192 concise", result.stdout)
+
+    def test_legacy_locale_output_does_not_crash_after_saving(self):
+        result = helpers.run_cli(
+            ["mode", "tabular"], self.path, extra_env={"PYTHONIOENCODING": "iso-8859-1"}
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("fmt: mode ? tabular", result.stdout)
+        self.assertIn("current mode is tabular", helpers.run_cli(["get"], self.path).stdout)
 
 
 if __name__ == "__main__":

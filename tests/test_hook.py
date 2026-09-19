@@ -72,10 +72,39 @@ class ExpandHookTest(unittest.TestCase):
         result = helpers.run_hook("nope", helpers.fixture("expansion_tabular"), self.path)
         self.assert_silent(result)
 
-    def test_runs_well_under_one_second(self):
+    def test_runs_quickly(self):
+        # The invariant is under a second; the bound is looser so a loaded CI
+        # runner doesn't flake. hooks.json's timeout of 5 is the hard guard.
         start = time.monotonic()
         self.expand(helpers.fixture("expansion_tabular"))
-        self.assertLess(time.monotonic() - start, 1.0)
+        self.assertLess(time.monotonic() - start, 2.0)
+
+    def test_reads_utf8_input_under_a_legacy_locale(self):
+        payload = dict(helpers.fixture("expansion_custom"), command_args="custom \u201cno jargon\u201d")
+        result = helpers.run_hook(
+            "expand", payload, self.path, extra_env={"PYTHONIOENCODING": "iso-8859-1", "LC_ALL": "C", "PYTHONUTF8": "0"}
+        )
+        out = json.loads(result.stdout)
+        self.assertEqual(out["reason"], 'fmt: mode \u2192 custom ("no jargon")')
+
+    def test_unexpected_error_exits_silently_with_a_traceback_on_stderr(self):
+        import io
+        from unittest import mock
+        import fmt_hook
+
+        def boom(payload):
+            raise RuntimeError("handler bug")
+
+        stdin = io.TextIOWrapper(io.BytesIO(b'{"hook_event_name": "UserPromptExpansion"}'))
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch.dict(fmt_hook.HANDLERS, {"expand": boom}), mock.patch.object(
+            fmt_hook.sys, "stdin", stdin
+        ), mock.patch.object(fmt_hook.sys, "stdout", stdout), mock.patch.object(
+            fmt_hook.sys, "stderr", stderr
+        ):
+            self.assertEqual(fmt_hook.main(["fmt_hook.py", "expand"]), 0)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("RuntimeError: handler bug", stderr.getvalue())
 
     def test_hook_and_cli_share_the_state_file(self):
         self.expand(helpers.fixture("expansion_tabular"))

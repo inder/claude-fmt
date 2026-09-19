@@ -9,6 +9,7 @@ carries on as if the plugin were not installed.
 import json
 import os
 import sys
+import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
@@ -40,7 +41,7 @@ def main(argv):
         handler = HANDLERS.get(argv[1] if len(argv) > 1 else "")
         if handler is None:
             return 0
-        raw = sys.stdin.read()
+        raw = sys.stdin.buffer.read().decode("utf-8", "replace")
         if not raw.strip():
             return 0
         payload = json.loads(raw)
@@ -50,6 +51,9 @@ def main(argv):
         if result is not None:
             sys.stdout.write(json.dumps(result))
     except Exception:
+        # Stderr on exit 0 only shows in Claude Code's debug output, which is
+        # where someone chasing a bug would look.
+        traceback.print_exc()
         return 0
     return 0
 

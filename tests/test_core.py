@@ -65,6 +65,10 @@ class ReadWriteTest(unittest.TestCase):
         self.assertRegex(data["updated_at"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
         self.assertEqual(data["custom"], "")
 
+    def test_hand_edited_custom_text_is_clamped(self):
+        self.write_raw(json.dumps({"mode": "custom", "custom": "y" * (fmt_core.MAX_CUSTOM_CHARS + 500)}))
+        self.assertEqual(len(fmt_core.read_state(self.path)["custom"]), fmt_core.MAX_CUSTOM_CHARS)
+
     def test_custom_text_only_kept_for_custom_mode(self):
         fmt_core.write_state("tabular", custom="ignored", path=self.path)
         self.assertEqual(fmt_core.read_state(self.path)["custom"], "")
