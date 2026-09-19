@@ -63,6 +63,7 @@ def claude_fmt_traces():
         except OSError:
             pass
     found += glob.glob(os.path.join(HOME, ".claude", "plugins", "cache", "claude-fmt"))
+    found += glob.glob(os.path.join(HOME, ".claude", "plugins", "marketplaces", "claude-fmt"))
     found += glob.glob(os.path.join(HOME, ".claude", "plugins", "data", "fmt-claude-fmt*"))
     return found
 

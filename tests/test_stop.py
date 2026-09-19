@@ -105,6 +105,14 @@ class StopHookTest(unittest.TestCase):
         for stdin in ("", "not json", "[]", "null"):
             self.assert_silent(helpers.run_hook("stop", stdin, self.path))
 
+    def test_off_switch_silences_every_hook(self):
+        fmt_core.write_state("tabular", path=self.path)
+        off = {"CLAUDE_FMT_OFF": "1"}
+        self.assert_silent(self.stop(extra_env=off))
+        self.assert_silent(helpers.run_hook("inject", helpers.fixture("submit_question"), self.path, extra_env=off))
+        result = helpers.run_hook("expand", helpers.fixture("expansion_tabular"), self.path, extra_env=off)
+        self.assert_silent(result)
+
     def test_no_inject_switch_does_not_disable_checking(self):
         fmt_core.write_state("tabular", path=self.path)
         self.send_back(self.stop(extra_env={"CLAUDE_FMT_NO_INJECT": "1"}))
