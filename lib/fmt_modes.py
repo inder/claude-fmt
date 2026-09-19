@@ -27,6 +27,11 @@ CONCISE_MAX_WORDS = 200
 # first, because the instruction allows nested bullets.
 BULLET_RATIO = 0.6
 
+# bulleted: a "bullet" longer than this is a paragraph wearing a dash. Live
+# testing caught two 150-word bullets passing as a list; the longest bullet in
+# the real captured corpus is 47 words, so 80 leaves a wide margin.
+BULLET_MAX_WORDS = 80
+
 # tabular: the instruction's example separator is "| --- | --- |", with spaces.
 # The checker matches separator rows with TABLE_SEPARATOR_RE, which allows
 # optional spaces, alignment colons and any number of dashes per cell

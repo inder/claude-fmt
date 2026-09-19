@@ -178,7 +178,8 @@ def _check_tabular(prose, fences):
 # bulleted. Invariant: the reply's content is bullet points, not paragraphs.
 # Failure modes: paragraphs with a few bullets; bold pseudo-headings over
 # paragraphs; bullets only inside a code fence; alternating bullets and
-# paragraphs; a table with no bullets. Headings, rules and table rows are not
+# paragraphs; a table with no bullets; paragraphs dressed as bullets (a bullet
+# over BULLET_MAX_WORDS counts as a paragraph). Headings, rules and table rows are not
 # content. An indented line directly under a bullet continues that bullet
 # (a wrapped or two-line item) rather than counting as a paragraph.
 def _check_bulleted(prose):
@@ -192,7 +193,7 @@ def _check_bulleted(prose):
             in_bullet = False
             continue
         unquoted = _QUOTE_PREFIX.sub("", line)
-        if _BULLET.match(unquoted):
+        if _BULLET.match(unquoted) and count_words([unquoted]) <= M.BULLET_MAX_WORDS:
             bullets += 1
             in_bullet = True
         elif in_bullet and unquoted[:1] in (" ", "\t"):

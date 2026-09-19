@@ -106,6 +106,30 @@ class ExpandHookTest(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("RuntimeError: handler bug", stderr.getvalue())
 
+    def test_trace_records_each_decision_when_enabled(self):
+        trace = os.path.join(os.path.dirname(self.path), "trace.jsonl")
+        env = {"CLAUDE_FMT_TRACE": trace}
+        helpers.run_hook("expand", helpers.fixture("expansion_tabular"), self.path, extra_env=env)
+        helpers.run_hook("inject", helpers.fixture("submit_question"), self.path, extra_env=env)
+        fmt_core.write_state("original", path=self.path)
+        helpers.run_hook("inject", helpers.fixture("submit_question"), self.path, extra_env=env)
+        with open(trace, encoding="utf-8") as f:
+            records = [json.loads(line) for line in f]
+        self.assertEqual(
+            [(r["handler"], r["mode"], r["output"]) for r in records],
+            [("expand", "tabular", True), ("inject", "tabular", True), ("inject", "original", False)],
+        )
+        self.assertEqual(records[0]["kind"], "block")
+        self.assertEqual({r["retry"] for r in records}, {False})
+        self.assertEqual(records[1]["kind"], "context")
+
+    def test_trace_is_off_by_default_and_never_breaks_the_hook(self):
+        result = helpers.run_hook(
+            "expand", helpers.fixture("expansion_tabular"), self.path,
+            extra_env={"CLAUDE_FMT_TRACE": "/nonexistent-dir/trace.jsonl"},
+        )
+        self.assertEqual(json.loads(result.stdout)["decision"], "block")
+
     def test_hook_and_cli_share_the_state_file(self):
         self.expand(helpers.fixture("expansion_tabular"))
         result = helpers.run_cli(["get"], self.path)

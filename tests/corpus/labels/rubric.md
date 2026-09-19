@@ -14,10 +14,17 @@ against every format (a reply can satisfy several):
   bullets or numbered items), not paragraphs. Table rows, headings and code blocks don't count.
 - **tabular**: the reply is mainly one or more real Markdown tables written directly in the reply
   (header row, separator row, rows), not inside a code block, with at most a little prose around
-  them.
+  them. Code blocks alongside the tables (commands, code) are fine and don't count as prose.
 - **flow**: the reply contains a plain-text flow diagram inside a fenced code block, steps joined
   by arrows in order. Mermaid source does not count; arrows inside real program code do not count.
 - **block**: the reply contains a plain-text block diagram inside a fenced code block, two or more
   drawn boxes connected by lines or arrows. Mermaid does not count.
 
 Answers were YES, NO or BORDERLINE (with a short reason).
+
+The two grading batches used slightly different wording. Batch 1 (`grader-batch1.json`, the first 24
+captures) did not say that code blocks may sit alongside tables. Batch 2 (`grader-batch2.json`, the five
+code-heavy captures) did, and that sentence is kept above, because the plugin's own instruction tells
+Claude to put code and commands in fenced blocks. It was missing from an earlier version of this file,
+which made the live judge fail two correct tabular replies (tables carrying the answer, commands in
+bash blocks) until it was restored.

@@ -98,6 +98,34 @@ def handle_stop(payload):
 HANDLERS = {"expand": handle_expand, "inject": handle_inject, "stop": handle_stop}
 
 
+def _trace(handler, payload, result):
+    """Append this hook's decision to $CLAUDE_FMT_TRACE, if set.
+
+    Test-only: the live harness uses it to show directly what each hook did
+    (for example, that `original` produced no output) instead of inferring it
+    from the absence of text. Never raises.
+    """
+    path = os.environ.get("CLAUDE_FMT_TRACE")
+    if not path:
+        return
+    try:
+        from fmt_core import read_state
+
+        record = {
+            "handler": handler,
+            "event": payload.get("hook_event_name"),
+            "mode": read_state().get("mode"),
+            "output": result is not None,
+            "retry": bool(payload.get("stop_hook_active")),
+        }
+        if result is not None:
+            record["kind"] = "block" if result.get("decision") == "block" else "context"
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception:
+        pass
+
+
 def main(argv):
     try:
         handler = HANDLERS.get(argv[1] if len(argv) > 1 else "")
@@ -112,6 +140,7 @@ def main(argv):
         result = handler(payload)
         if result is not None:
             sys.stdout.write(json.dumps(result))
+        _trace(argv[1], payload, result)
     except Exception:
         # Stderr on exit 0 only shows in Claude Code's debug output, which is
         # where someone chasing a bug would look.
