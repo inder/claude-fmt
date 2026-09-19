@@ -431,6 +431,11 @@
       "failure_mode": "bullets-inside-code-fence"
     },
     {
+      "file": "near/bulleted-paragraphs-dressed-as-bullets.md",
+      "mode": "bulleted",
+      "failure_mode": "paragraphs-dressed-as-bullets"
+    },
+    {
       "file": "near/bulleted-paragraphs-with-few-bullets.md",
       "mode": "bulleted",
       "failure_mode": "paragraphs-with-few-bullets"
