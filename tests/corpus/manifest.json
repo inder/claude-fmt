@@ -1,0 +1,520 @@
+{
+  "about": "Checker corpus. captured/: real replies from `claude -p --plugin-dir <plugin> --setting-sources project --tools \"\"` with the mode's instruction injected (requested_mode 'original' = no injection), Opus and Sonnet. Their expect values come from an independent Sonnet grader that labeled each reply against a written rubric without seeing the checker; borderline labels are omitted. known_false_pass lists accepted passes the grader disagreed with (the checker leans toward passing). near/: hand-crafted replies, one per distinct failure mode, that must fail. terse/: short valid replies that must pass on their rule, not the short-reply floor.",
+  "captured": [
+    {
+      "file": "captured/block-q1-opus.md",
+      "requested_mode": "block",
+      "model": "opus",
+      "question": "How does HTTPS establish a secure connection between a browser and a server?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "flow": "pass",
+        "block": "pass"
+      }
+    },
+    {
+      "file": "captured/block-q2-sonnet.md",
+      "requested_mode": "block",
+      "model": "sonnet",
+      "question": "Compare PostgreSQL, MySQL and SQLite for a small web app.",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "block": "pass"
+      }
+    },
+    {
+      "file": "captured/block-q3-opus.md",
+      "requested_mode": "block",
+      "model": "opus",
+      "question": "What are the main components of a typical web application, and how do they talk to each other?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "flow": "pass",
+        "block": "pass"
+      }
+    },
+    {
+      "file": "captured/block-q4-sonnet.md",
+      "requested_mode": "block",
+      "model": "sonnet",
+      "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "block": "pass"
+      },
+      "known_false_pass": {
+        "flow": "a block diagram whose boxes are joined by arrows also satisfies the arrow count"
+      }
+    },
+    {
+      "file": "captured/bulleted-q1-opus.md",
+      "requested_mode": "bulleted",
+      "model": "opus",
+      "question": "How does HTTPS establish a secure connection between a browser and a server?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/bulleted-q2-sonnet.md",
+      "requested_mode": "bulleted",
+      "model": "sonnet",
+      "question": "Compare PostgreSQL, MySQL and SQLite for a small web app.",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/bulleted-q3-opus.md",
+      "requested_mode": "bulleted",
+      "model": "opus",
+      "question": "What are the main components of a typical web application, and how do they talk to each other?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      },
+      "note": "Re-captured with --strict-mcp-config: the first capture appended a note about the capturing account's connectors."
+    },
+    {
+      "file": "captured/bulleted-q4-sonnet.md",
+      "requested_mode": "bulleted",
+      "model": "sonnet",
+      "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/concise-q1-opus.md",
+      "requested_mode": "concise",
+      "model": "opus",
+      "question": "How does HTTPS establish a secure connection between a browser and a server?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/concise-q2-sonnet.md",
+      "requested_mode": "concise",
+      "model": "sonnet",
+      "question": "Compare PostgreSQL, MySQL and SQLite for a small web app.",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/concise-q3-opus.md",
+      "requested_mode": "concise",
+      "model": "opus",
+      "question": "What are the main components of a typical web application, and how do they talk to each other?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "pass",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/concise-q4-sonnet.md",
+      "requested_mode": "concise",
+      "model": "sonnet",
+      "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/flow-q1-opus.md",
+      "requested_mode": "flow",
+      "model": "opus",
+      "question": "How does HTTPS establish a secure connection between a browser and a server?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "flow": "pass",
+        "block": "pass"
+      }
+    },
+    {
+      "file": "captured/flow-q2-sonnet.md",
+      "requested_mode": "flow",
+      "model": "sonnet",
+      "question": "Compare PostgreSQL, MySQL and SQLite for a small web app.",
+      "expect": {
+        "concise": "pass",
+        "flow": "pass"
+      },
+      "known_false_pass": {
+        "bulleted": "the whole answer sits in a text fence, leaving under 40 words of prose, so the short-reply floor passes it",
+        "tabular": "the whole answer sits in a text fence, leaving under 40 words of prose, so the short-reply floor passes it",
+        "block": "box-drawing junctions in a flow diagram count as boxes"
+      }
+    },
+    {
+      "file": "captured/flow-q3-opus.md",
+      "requested_mode": "flow",
+      "model": "opus",
+      "question": "What are the main components of a typical web application, and how do they talk to each other?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "flow": "pass",
+        "block": "pass"
+      }
+    },
+    {
+      "file": "captured/flow-q4-sonnet.md",
+      "requested_mode": "flow",
+      "model": "sonnet",
+      "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "flow": "pass"
+      },
+      "known_false_pass": {
+        "block": "box-drawing junctions in a flow diagram count as boxes"
+      }
+    },
+    {
+      "file": "captured/original-q1-sonnet.md",
+      "requested_mode": "original",
+      "model": "sonnet",
+      "question": "How does HTTPS establish a secure connection between a browser and a server?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/original-q2-opus.md",
+      "requested_mode": "original",
+      "model": "opus",
+      "question": "Compare PostgreSQL, MySQL and SQLite for a small web app.",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/original-q3-sonnet.md",
+      "requested_mode": "original",
+      "model": "sonnet",
+      "question": "What are the main components of a typical web application, and how do they talk to each other?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/original-q4-opus.md",
+      "requested_mode": "original",
+      "model": "opus",
+      "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/tabular-q1-opus.md",
+      "requested_mode": "tabular",
+      "model": "opus",
+      "question": "How does HTTPS establish a secure connection between a browser and a server?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "fail",
+        "tabular": "pass",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/tabular-q2-sonnet.md",
+      "requested_mode": "tabular",
+      "model": "sonnet",
+      "question": "Compare PostgreSQL, MySQL and SQLite for a small web app.",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "fail",
+        "tabular": "pass",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/tabular-q3-opus.md",
+      "requested_mode": "tabular",
+      "model": "opus",
+      "question": "What are the main components of a typical web application, and how do they talk to each other?",
+      "expect": {
+        "concise": "fail",
+        "bulleted": "fail",
+        "tabular": "pass",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/tabular-q4-sonnet.md",
+      "requested_mode": "tabular",
+      "model": "sonnet",
+      "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "bulleted": "fail",
+        "tabular": "pass",
+        "flow": "fail",
+        "block": "fail"
+      }
+    }
+  ],
+  "near": [
+    {
+      "file": "near/block-arrows-without-boxes.md",
+      "mode": "block",
+      "failure_mode": "arrows-without-boxes"
+    },
+    {
+      "file": "near/block-boxes-outside-fence.md",
+      "mode": "block",
+      "failure_mode": "boxes-outside-fence"
+    },
+    {
+      "file": "near/block-markdown-table-instead.md",
+      "mode": "block",
+      "failure_mode": "markdown-table-instead"
+    },
+    {
+      "file": "near/block-mermaid.md",
+      "mode": "block",
+      "failure_mode": "mermaid"
+    },
+    {
+      "file": "near/block-single-ascii-box.md",
+      "mode": "block",
+      "failure_mode": "single-ascii-box"
+    },
+    {
+      "file": "near/block-single-box.md",
+      "mode": "block",
+      "failure_mode": "single-box"
+    },
+    {
+      "file": "near/bulleted-alternating-bullets-and-paragraphs.md",
+      "mode": "bulleted",
+      "failure_mode": "alternating-bullets-and-paragraphs"
+    },
+    {
+      "file": "near/bulleted-bold-pseudo-headings.md",
+      "mode": "bulleted",
+      "failure_mode": "bold-pseudo-headings"
+    },
+    {
+      "file": "near/bulleted-bullets-inside-code-fence.md",
+      "mode": "bulleted",
+      "failure_mode": "bullets-inside-code-fence"
+    },
+    {
+      "file": "near/bulleted-paragraphs-with-few-bullets.md",
+      "mode": "bulleted",
+      "failure_mode": "paragraphs-with-few-bullets"
+    },
+    {
+      "file": "near/bulleted-table-only.md",
+      "mode": "bulleted",
+      "failure_mode": "table-only"
+    },
+    {
+      "file": "near/concise-long-bullets.md",
+      "mode": "concise",
+      "failure_mode": "too-long"
+    },
+    {
+      "file": "near/concise-long-prose.md",
+      "mode": "concise",
+      "failure_mode": "too-long"
+    },
+    {
+      "file": "near/concise-preamble-heavy.md",
+      "mode": "concise",
+      "failure_mode": "too-long"
+    },
+    {
+      "file": "near/flow-arrows-in-language-code.md",
+      "mode": "flow",
+      "failure_mode": "arrows-in-language-code"
+    },
+    {
+      "file": "near/flow-arrows-in-prose-only.md",
+      "mode": "flow",
+      "failure_mode": "arrows-in-prose-only"
+    },
+    {
+      "file": "near/flow-indented-diagram-without-fence.md",
+      "mode": "flow",
+      "failure_mode": "indented-diagram-without-fence"
+    },
+    {
+      "file": "near/flow-mermaid-fence.md",
+      "mode": "flow",
+      "failure_mode": "mermaid-fence"
+    },
+    {
+      "file": "near/flow-mermaid-source-in-plain-fence.md",
+      "mode": "flow",
+      "failure_mode": "mermaid-source-in-plain-fence"
+    },
+    {
+      "file": "near/flow-numbered-list-in-fence.md",
+      "mode": "flow",
+      "failure_mode": "numbered-list-in-fence"
+    },
+    {
+      "file": "near/flow-numbered-steps-no-diagram.md",
+      "mode": "flow",
+      "failure_mode": "numbered-steps-no-diagram"
+    },
+    {
+      "file": "near/flow-single-arrow.md",
+      "mode": "flow",
+      "failure_mode": "single-arrow"
+    },
+    {
+      "file": "near/tabular-ascii-grid-in-prose.md",
+      "mode": "tabular",
+      "failure_mode": "ascii-grid-in-prose"
+    },
+    {
+      "file": "near/tabular-decorative-table-on-prose.md",
+      "mode": "tabular",
+      "failure_mode": "decorative-table-on-prose"
+    },
+    {
+      "file": "near/tabular-key-value-list.md",
+      "mode": "tabular",
+      "failure_mode": "key-value-list"
+    },
+    {
+      "file": "near/tabular-pipes-without-separator.md",
+      "mode": "tabular",
+      "failure_mode": "pipes-without-separator"
+    },
+    {
+      "file": "near/tabular-prose-outweighs-table.md",
+      "mode": "tabular",
+      "failure_mode": "prose-outweighs-table"
+    },
+    {
+      "file": "near/tabular-separator-without-body.md",
+      "mode": "tabular",
+      "failure_mode": "separator-without-body"
+    },
+    {
+      "file": "near/tabular-table-in-code-fence.md",
+      "mode": "tabular",
+      "failure_mode": "table-in-code-fence"
+    }
+  ],
+  "terse": [
+    {
+      "file": "terse/block-ascii-side-by-side.md",
+      "mode": "block",
+      "what": "ascii-side-by-side"
+    },
+    {
+      "file": "terse/block-stacked-shared-borders.md",
+      "mode": "block",
+      "what": "stacked-shared-borders"
+    },
+    {
+      "file": "terse/bulleted-five-points.md",
+      "mode": "bulleted",
+      "what": "five-points"
+    },
+    {
+      "file": "terse/bulleted-intro-and-nested-fence.md",
+      "mode": "bulleted",
+      "what": "intro-and-nested-fence"
+    },
+    {
+      "file": "terse/concise-short-answer-long-code.md",
+      "mode": "concise",
+      "what": "short-answer-long-code"
+    },
+    {
+      "file": "terse/concise-sixty-words.md",
+      "mode": "concise",
+      "what": "sixty-words"
+    },
+    {
+      "file": "terse/flow-three-steps.md",
+      "mode": "flow",
+      "what": "three-steps"
+    },
+    {
+      "file": "terse/flow-vertical-ascii.md",
+      "mode": "flow",
+      "what": "vertical-ascii"
+    },
+    {
+      "file": "terse/tabular-short-dashes-and-command.md",
+      "mode": "tabular",
+      "what": "short-dashes-and-command"
+    },
+    {
+      "file": "terse/tabular-two-rows.md",
+      "mode": "tabular",
+      "what": "two-rows"
+    }
+  ]
+}

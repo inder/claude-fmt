@@ -23,10 +23,16 @@ BULLET_RATIO = 0.6
 
 # tabular: the instruction's example separator is "| --- | --- |", with spaces.
 # The checker matches separator rows with TABLE_SEPARATOR_RE, which allows
-# optional spaces and alignment colons in each cell. A single-column table
-# ("|---|") is deliberately not recognized.
+# optional spaces, alignment colons and any number of dashes per cell
+# ("|:-|--:|" is valid Markdown). A single-column table ("|---|") is
+# deliberately not recognized.
 TABLE_SEPARATOR_EXAMPLE = "| --- | --- |"
-TABLE_SEPARATOR_RE = r"^\s*\|?(\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$"
+TABLE_SEPARATOR_RE = r"^\s*\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?\s*$"
+
+# tabular: prose outside the tables fails the check only when it is both
+# longer than this and longer than the tables themselves, so a table answer
+# with a few caveat lines is not sent back.
+TABULAR_MAX_PROSE_WORDS = 80
 
 # flow: at least FLOW_MIN_STEPS steps, so at least FLOW_MIN_STEPS - 1 arrows,
 # inside a fenced block. The instruction names the first few glyphs; the
@@ -36,18 +42,35 @@ FLOW_MIN_STEPS = 3
 FLOW_ARROW_GLYPHS = ("\u2192", "\u2193", "\u2190", "\u2191", "\u27f6", "\u25b6", "\u25bc", "\u25ba", "\u25b8", "\u25be")
 
 # block: two or more boxes inside a fenced block. Unicode boxes are counted by
-# top-left corners. ASCII boxes are counted as border segments "+--+" found
-# with overlapping matches (so "+---+---+" is two segments), divided by two
-# for top and bottom borders, rounded up. Counting a leading "+-" per line is
-# wrong both ways: one box has two such lines, and two side-by-side boxes
-# share one line.
+# top-left corners plus tee junctions, because stacked layers ("┌─┐ ├─┤ └─┘")
+# and boxes sharing a border ("┌─┬─┐") draw several boxes from one corner.
+# ASCII boxes are counted as border segments "+--+" found with overlapping
+# matches (so "+---+---+" is two segments), divided by two for top and bottom
+# borders, rounded up. The larger of the two counts is used. Counting a
+# leading "+-" per line is wrong both ways: one box has two such lines, and
+# two side-by-side boxes share one line. Known false passes, accepted because
+# the check leans toward passing: a directory tree ("├──") and an ASCII table
+# inside a fence.
 BLOCK_MIN_BOXES = 2
-BOX_CORNERS = ("\u250c", "\u256d", "\u2554")
+BOX_CORNERS = ("\u250c", "\u256d", "\u2554", "\u250f", "\u2552", "\u2553")
+BOX_TEES = ("\u252c", "\u251c", "\u253c", "\u2566", "\u2560", "\u2533", "\u2523", "\u2564", "\u255f")
+
+# A fence counts as a possible diagram when its info string's first word
+# (case-insensitive) is empty or one of these. A fence labeled with a
+# programming language never counts, since "->" and "=>" in real code would
+# otherwise pass the flow check.
+DIAGRAM_INFO_STRINGS = (
+    "", "text", "txt", "plain", "plaintext", "ascii", "diagram", "flow", "none",
+    "nohighlight", "raw", "output",
+)
 
 # Mermaid renders as raw source in the terminal, so a fence tagged "mermaid",
 # or whose first line starts with one of these keywords, fails both diagram
 # modes even though its "-->" arrows would otherwise count.
-MERMAID_KEYWORDS = ("graph", "flowchart", "sequenceDiagram", "stateDiagram", "classDiagram", "block-beta")
+MERMAID_KEYWORDS = (
+    "graph", "flowchart", "sequenceDiagram", "stateDiagram", "classDiagram", "erDiagram",
+    "block-beta", "gantt", "mindmap",
+)
 
 LABELS = {
     "concise": "concise",

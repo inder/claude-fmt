@@ -1,0 +1,1 @@
+Use SQLite if the app runs on one machine with modest writes: no server, one file, trivial backups. Use PostgreSQL once you need several app servers, heavy concurrent writes, or features like JSONB and full-text search. Pick MySQL only when your host or existing stack already expects it. Migrating from SQLite to PostgreSQL later is straightforward with an ORM.
