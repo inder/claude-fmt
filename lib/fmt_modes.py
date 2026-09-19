@@ -55,20 +55,30 @@ BLOCK_MIN_BOXES = 2
 BOX_CORNERS = ("\u250c", "\u256d", "\u2554", "\u250f", "\u2552", "\u2553")
 BOX_TEES = ("\u252c", "\u251c", "\u253c", "\u2566", "\u2560", "\u2533", "\u2523", "\u2564", "\u255f")
 
-# A fence counts as a possible diagram when its info string's first word
-# (case-insensitive) is empty or one of these. A fence labeled with a
-# programming language never counts, since "->" and "=>" in real code would
-# otherwise pass the flow check.
-DIAGRAM_INFO_STRINGS = (
-    "", "text", "txt", "plain", "plaintext", "ascii", "diagram", "flow", "none",
-    "nohighlight", "raw", "output",
+# A fence counts as a possible diagram unless its info string's first word
+# (case-insensitive) names a programming, markup or config language. This is a
+# deny-list on purpose: the instruction names no label, so an unfamiliar one
+# ("ascii-art", "flowchart") must not fail a real diagram, while "->" and "=>"
+# in real code must not pass the flow check.
+CODE_LANGUAGES = (
+    "python", "py", "rust", "rs", "javascript", "js", "typescript", "ts", "jsx", "tsx", "go",
+    "golang", "java", "kotlin", "kt", "swift", "c", "cpp", "c++", "h", "cs", "csharp", "rb",
+    "ruby", "php", "sh", "bash", "zsh", "fish", "shell", "console", "powershell", "ps1", "sql",
+    "json", "jsonc", "yaml", "yml", "toml", "xml", "html", "css", "scss", "dockerfile",
+    "makefile", "lua", "perl", "r", "scala", "haskell", "hs", "elixir", "ex", "erlang", "dart",
+    "vue", "svelte", "graphql", "proto", "ini", "diff", "patch", "ocaml", "clojure", "zig",
+    "nim", "julia", "matlab", "groovy", "hcl", "terraform", "nginx", "vim",
 )
 
-# Mermaid renders as raw source in the terminal, so a fence tagged "mermaid",
-# or whose first line starts with one of these keywords, fails both diagram
-# modes even though its "-->" arrows would otherwise count.
-MERMAID_KEYWORDS = (
-    "graph", "flowchart", "sequenceDiagram", "stateDiagram", "classDiagram", "erDiagram",
+# Mermaid renders as raw source in the terminal, so it fails both diagram
+# modes: a fence labeled "mermaid", or an unlabeled/text fence whose first line
+# is Mermaid syntax. "graph" and "flowchart" count only with a direction
+# ("graph TD"), and the other keywords only alone on the line, so a diagram
+# titled "flowchart of the handshake" is not mistaken for Mermaid.
+MERMAID_DIRECTED = ("graph", "flowchart")
+MERMAID_DIRECTIONS = ("TD", "TB", "LR", "RL", "BT")
+MERMAID_STANDALONE = (
+    "sequenceDiagram", "stateDiagram", "stateDiagram-v2", "classDiagram", "erDiagram",
     "block-beta", "gantt", "mindmap",
 )
 

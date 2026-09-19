@@ -1,5 +1,5 @@
 {
-  "about": "Checker corpus. captured/: real replies from `claude -p --plugin-dir <plugin> --setting-sources project --tools \"\"` with the mode's instruction injected (requested_mode 'original' = no injection), Opus and Sonnet. Their expect values come from an independent Sonnet grader that labeled each reply against a written rubric without seeing the checker; borderline labels are omitted. known_false_pass lists accepted passes the grader disagreed with (the checker leans toward passing). near/: hand-crafted replies, one per distinct failure mode, that must fail. terse/: short valid replies that must pass on their rule, not the short-reply floor.",
+  "about": "Checker corpus. captured/: real replies from `claude -p --plugin-dir <plugin> --setting-sources project --tools \"\"` with the mode's instruction injected (requested_mode 'original' = no injection), Opus and Sonnet. Their expect values come from an independent Sonnet grader (see labels/rubric.md and the raw labels/grader-*.json) that labeled each reply against a written rubric without seeing the checker; borderline labels are omitted. known_false_pass lists accepted passes the grader disagreed with (the checker leans toward passing). near/: hand-crafted replies, one per distinct failure mode, that must fail. terse/: short valid replies that must pass on their rule, not the short-reply floor.",
   "captured": [
     {
       "file": "captured/block-q1-opus.md",
@@ -46,6 +46,20 @@
       "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
       "expect": {
         "concise": "pass",
+        "bulleted": "fail",
+        "tabular": "fail",
+        "block": "pass"
+      },
+      "known_false_pass": {
+        "flow": "a block diagram whose boxes are joined by arrows also satisfies the arrow count"
+      }
+    },
+    {
+      "file": "captured/block-q7-sonnet.md",
+      "requested_mode": "block",
+      "model": "sonnet",
+      "question": "How would you structure a small Go web service? Include a snippet of main.go.",
+      "expect": {
         "bulleted": "fail",
         "tabular": "fail",
         "block": "pass"
@@ -108,6 +122,19 @@
       }
     },
     {
+      "file": "captured/bulleted-q8-opus.md",
+      "requested_mode": "bulleted",
+      "model": "opus",
+      "question": "How do I read a CSV file in Python? Show code.",
+      "expect": {
+        "concise": "pass",
+        "bulleted": "pass",
+        "tabular": "fail",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
       "file": "captured/concise-q1-opus.md",
       "requested_mode": "concise",
       "model": "opus",
@@ -156,6 +183,21 @@
         "tabular": "fail",
         "flow": "fail",
         "block": "fail"
+      }
+    },
+    {
+      "file": "captured/concise-q9-sonnet.md",
+      "requested_mode": "concise",
+      "model": "sonnet",
+      "question": "How do I reverse a list in Python?",
+      "expect": {
+        "concise": "pass"
+      },
+      "known_false_pass": {
+        "bulleted": "the reply has under 40 words of prose, so the short-reply floor passes it",
+        "tabular": "the reply has under 40 words of prose, so the short-reply floor passes it",
+        "flow": "the reply has under 40 words of prose, so the short-reply floor passes it",
+        "block": "the reply has under 40 words of prose, so the short-reply floor passes it"
       }
     },
     {
@@ -212,6 +254,18 @@
       },
       "known_false_pass": {
         "block": "box-drawing junctions in a flow diagram count as boxes"
+      }
+    },
+    {
+      "file": "captured/flow-q5-sonnet.md",
+      "requested_mode": "flow",
+      "model": "sonnet",
+      "question": "How does a Python decorator work? Include a short code example.",
+      "expect": {
+        "bulleted": "fail",
+        "tabular": "fail",
+        "flow": "pass",
+        "block": "fail"
       }
     },
     {
@@ -310,6 +364,18 @@
       "requested_mode": "tabular",
       "model": "sonnet",
       "question": "Should a team of eight engineers use a monorepo or multiple repositories?",
+      "expect": {
+        "bulleted": "fail",
+        "tabular": "pass",
+        "flow": "fail",
+        "block": "fail"
+      }
+    },
+    {
+      "file": "captured/tabular-q6-opus.md",
+      "requested_mode": "tabular",
+      "model": "opus",
+      "question": "What is the difference between let, const and var in JavaScript? Show code.",
       "expect": {
         "bulleted": "fail",
         "tabular": "pass",
@@ -487,6 +553,11 @@
       "what": "intro-and-nested-fence"
     },
     {
+      "file": "terse/bulleted-two-line-items.md",
+      "mode": "bulleted",
+      "what": "bold-label-then-indented-continuation"
+    },
+    {
       "file": "terse/concise-short-answer-long-code.md",
       "mode": "concise",
       "what": "short-answer-long-code"
@@ -497,9 +568,19 @@
       "what": "sixty-words"
     },
     {
+      "file": "terse/flow-custom-fence-label.md",
+      "mode": "flow",
+      "what": "unfamiliar-fence-label"
+    },
+    {
       "file": "terse/flow-three-steps.md",
       "mode": "flow",
       "what": "three-steps"
+    },
+    {
+      "file": "terse/flow-titled-text-fence.md",
+      "mode": "flow",
+      "what": "text-fence-titled-flowchart-not-mermaid"
     },
     {
       "file": "terse/flow-vertical-ascii.md",

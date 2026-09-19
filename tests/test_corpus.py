@@ -92,9 +92,11 @@ class CorpusTest(unittest.TestCase):
         # A capture run without --strict-mcp-config once appended a note about
         # the capturing account's claude.ai connectors. Replies in a public
         # corpus must be about the question only.
+        leaks = ("connector", "~/.claude", "/users/", "/home/")
         for item in self.manifest["captured"]:
             text = read(item["file"]).lower()
-            self.assertNotIn("connector", text, item["file"])
+            for marker in leaks:
+                self.assertNotIn(marker, text, "%s mentions %r" % (item["file"], marker))
 
     def test_manifest_and_files_agree(self):
         listed = {

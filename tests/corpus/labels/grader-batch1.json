@@ -1,0 +1,175 @@
+{
+  "block-q1-opus": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "YES"
+  },
+  "block-q2-sonnet": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "BORDERLINE",
+    "block": "YES",
+    "notes": "tiny 2-line arrow chain inside tree diagram"
+  },
+  "block-q3-opus": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "YES"
+  },
+  "block-q4-sonnet": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "YES"
+  },
+  "bulleted-q1-opus": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "bulleted-q2-sonnet": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "bulleted-q3-opus": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO",
+    "notes": "Relabeled after re-capture: entirely nested bullets, ~550+ words; no tables or diagrams."
+  },
+  "bulleted-q4-sonnet": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "concise-q1-opus": {
+    "concise": "YES",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO",
+    "notes": "numbered list is 75% of prose lines"
+  },
+  "concise-q2-sonnet": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "BORDERLINE",
+    "flow": "NO",
+    "block": "NO",
+    "notes": "one table but also a bulleted section, roughly half-half"
+  },
+  "concise-q3-opus": {
+    "concise": "YES",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "NO"
+  },
+  "concise-q4-sonnet": {
+    "concise": "YES",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "flow-q1-opus": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "YES"
+  },
+  "flow-q2-sonnet": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "NO"
+  },
+  "flow-q3-opus": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "YES"
+  },
+  "flow-q4-sonnet": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "NO"
+  },
+  "original-q1-sonnet": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "original-q2-opus": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "original-q3-sonnet": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "original-q4-opus": {
+    "concise": "NO",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "tabular-q1-opus": {
+    "concise": "NO",
+    "bulleted": "NO",
+    "tabular": "YES",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "tabular-q2-sonnet": {
+    "concise": "NO",
+    "bulleted": "NO",
+    "tabular": "YES",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "tabular-q3-opus": {
+    "concise": "NO",
+    "bulleted": "NO",
+    "tabular": "YES",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "tabular-q4-sonnet": {
+    "concise": "BORDERLINE",
+    "bulleted": "NO",
+    "tabular": "YES",
+    "flow": "NO",
+    "block": "NO",
+    "notes": "240 words, ~20% over the 200-word bar"
+  }
+}

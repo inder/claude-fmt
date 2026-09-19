@@ -37,6 +37,22 @@ class SplitBlocksTest(unittest.TestCase):
         _, fences = K.split_blocks("```TEXT title=x\na -> b -> c\n```\n")
         self.assertTrue(fences[0].can_be_diagram)
 
+    def test_unfamiliar_fence_labels_can_be_diagrams(self):
+        for label in ("ascii-art", "flowchart", "Diagram", "none"):
+            _, fences = K.split_blocks("```%s\na -> b -> c\n```\n" % label)
+            self.assertTrue(fences[0].can_be_diagram, label)
+
+    def test_mermaid_first_line_needs_real_mermaid_syntax(self):
+        for first, expected in (
+            ("graph TD", True), ("flowchart LR", True), ("sequenceDiagram", True),
+            ("gantt", True), ("flowchart of the handshake", False), ("graph: setup", False),
+            ("mindmap of topics", False),
+        ):
+            _, fences = K.split_blocks("```\n%s\n  A --> B\n```\n" % first)
+            self.assertEqual(fences[0].is_mermaid, expected, first)
+        _, fences = K.split_blocks("```python\ngraph = build(deps)\n```\n")
+        self.assertFalse(fences[0].is_mermaid)
+
     def test_language_fence_is_not_a_diagram(self):
         _, fences = K.split_blocks("```js\nconst f = (a) => a;\n```\n")
         self.assertFalse(fences[0].can_be_diagram)

@@ -21,7 +21,8 @@ CHECKED_MODES = ("concise", "bulleted", "tabular", "flow", "block")
 _FENCE_OPEN = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
 _HEADING = re.compile(r"^\s{0,3}#{1,6}(\s|$)")
 _RULE = re.compile(r"^\s{0,3}([-*_])(\s*\1){2,}\s*$")
-_BULLET = re.compile(r"^\s*([-*+•]|\d{1,3}[.)])\s+\S")
+_BULLET = re.compile(r"^\s*([-*+\u2022\u2013]|\d{1,3}[.)])\s+\S")
+_QUOTE_PREFIX = re.compile(r"^\s*(>\s?)+")
 _SEPARATOR = re.compile(M.TABLE_SEPARATOR_RE)
 _ARROW = re.compile(
     "[-=─═━]+>|<[-=─═━]+|["
@@ -30,7 +31,14 @@ _ARROW = re.compile(
 )
 _DOWN_ARROWS = re.compile(r"^\s*(?:[vV^]\s*)+$")
 _ASCII_BORDER = re.compile(r"\+(?=-{2,}\+)")
-_MERMAID_FIRST_LINE = re.compile(r"^\s*(%s)\b" % "|".join(re.escape(k) for k in M.MERMAID_KEYWORDS))
+_MERMAID_FIRST_LINE = re.compile(
+    r"^\s*(?:(?:%s)\s+(?:%s)\b|(?:%s)\s*$)"
+    % (
+        "|".join(M.MERMAID_DIRECTED),
+        "|".join(M.MERMAID_DIRECTIONS),
+        "|".join(re.escape(k) for k in sorted(M.MERMAID_STANDALONE, key=len, reverse=True)),
+    )
+)
 _WORD = re.compile(r"[^\W_]", re.UNICODE)
 
 
@@ -42,9 +50,15 @@ class _Fence(object):
         self.info_word = words[0].lower() if words else ""
 
     @property
+    def is_code(self):
+        return self.info_word in M.CODE_LANGUAGES
+
+    @property
     def is_mermaid(self):
         if self.info_word == "mermaid":
             return True
+        if self.is_code:
+            return False
         for line in self.lines:
             if line.strip():
                 return bool(_MERMAID_FIRST_LINE.match(line))
@@ -52,7 +66,7 @@ class _Fence(object):
 
     @property
     def can_be_diagram(self):
-        return self.info_word in M.DIAGRAM_INFO_STRINGS and not self.is_mermaid
+        return not self.is_code and not self.is_mermaid
 
 
 def split_blocks(text):
@@ -140,6 +154,12 @@ def count_boxes(lines):
     return max(unicode_boxes, int(math.ceil(segments / 2.0)))
 
 
+# tabular. Invariant: the reply's content is one or more Markdown tables,
+# rendered as tables (so not inside a code block), with at most a little prose
+# around them. Failure modes: no table; a table inside a code fence; pipes with
+# no separator row; an ASCII grid; a key: value list; a decorative table on a
+# prose answer. The prose limit applies only when prose also outweighs the
+# tables, so a table answer with a few caveats is not sent back.
 def _check_tabular(prose, fences):
     tables = find_tables(prose)
     if not tables:
@@ -154,21 +174,34 @@ def _check_tabular(prose, fences):
     return True, "table"
 
 
+# bulleted. Invariant: the reply's content is bullet points, not paragraphs.
+# Failure modes: paragraphs with a few bullets; bold pseudo-headings over
+# paragraphs; bullets only inside a code fence; alternating bullets and
+# paragraphs; a table with no bullets. Headings, rules and table rows are not
+# content. An indented line directly under a bullet continues that bullet
+# (a wrapped or two-line item) rather than counting as a paragraph.
 def _check_bulleted(prose):
     tables = find_tables(prose)
-    content = [
-        line
-        for i, line in enumerate(prose)
-        if line is not None
-        and line.strip()
-        and i not in tables
-        and not _HEADING.match(line)
-        and not _RULE.match(line)
-    ]
-    if not content:
+    bullets = paragraphs = 0
+    in_bullet = False
+    for i, line in enumerate(prose):
+        if line is None or not line.strip() or i in tables:
+            continue
+        if _HEADING.match(line) or _RULE.match(line):
+            in_bullet = False
+            continue
+        unquoted = _QUOTE_PREFIX.sub("", line)
+        if _BULLET.match(unquoted):
+            bullets += 1
+            in_bullet = True
+        elif in_bullet and unquoted[:1] in (" ", "\t"):
+            continue  # continuation of the bullet above
+        else:
+            paragraphs += 1
+            in_bullet = False
+    if not bullets and not paragraphs:
         return False, "no bullet points"
-    bullets = sum(1 for line in content if _BULLET.match(line))
-    ratio = bullets / float(len(content))
+    ratio = bullets / float(bullets + paragraphs)
     if ratio < M.BULLET_RATIO:
         return False, "only %d%% of lines are bullets (needs %d%%)" % (
             round(ratio * 100),
@@ -177,6 +210,15 @@ def _check_bulleted(prose):
     return True, "bulleted"
 
 
+# flow. Invariant: the reply contains a plain-text flow diagram, steps joined
+# by arrows, inside a code block the terminal shows as drawn. Failure modes:
+# Mermaid; arrows only in prose; a single arrow; arrows in real code; numbered
+# steps with no diagram; an indented diagram with no fence.
+#
+# block. Invariant: the reply contains a plain-text block diagram of two or
+# more drawn boxes inside a code block. Failure modes: one box; Mermaid; boxes
+# drawn outside a fence; a Markdown table instead of boxes; labels joined by
+# arrows with no boxes.
 def _check_diagram(mode, prose, fences):
     capable = [fence for fence in fences if fence.can_be_diagram]
     if mode == "flow":
@@ -198,6 +240,9 @@ def _check_diagram(mode, prose, fences):
     return False, shortfall
 
 
+# concise. Invariant: the reply is short, about CONCISE_TARGET_WORDS words of
+# prose and never more than CONCISE_MAX_WORDS; code does not count. One
+# semantic failure mode: too long, however it is laid out.
 def check(mode, text):
     """Return (ok, reason) for whether `text` has the shape `mode` asks for."""
     try:
