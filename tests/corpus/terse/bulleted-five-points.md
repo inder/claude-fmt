@@ -1,0 +1,5 @@
+- SQLite: no server, one file on disk, fastest for a single process.
+- PostgreSQL: strict typing, rich indexes and extensions.
+- MySQL: familiar to most shared hosting providers and PHP stacks.
+- Start with SQLite while everything runs on a single machine.
+- Move to PostgreSQL when you add a second app server.

@@ -1,0 +1,8 @@
+- SQLite
+PostgreSQL gives you strict typing, rich indexes and extensions such as PostGIS, which matters once the data model grows. MySQL is familiar to most hosting providers and performs well on simple read-heavy workloads. SQLite needs no server at all and is fastest for a single process on one machine.
+- PostgreSQL
+The browser first resolves the domain name, then opens a TCP connection to the server. During the TLS handshake the server presents its certificate, the browser checks it against trusted authorities, and both sides agree on session keys that encrypt everything that follows.
+- MySQL
+For a team of eight, the deciding factors are how often changes cross service boundaries, whether you want one CI pipeline or several, and how much tooling you are willing to maintain. A monorepo makes atomic cross-cutting changes easy; separate repositories keep ownership and permissions simple.
+- Recommendation
+Start with SQLite on one box and move to PostgreSQL when you need a second server or heavier writes.

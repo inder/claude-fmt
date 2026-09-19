@@ -1,0 +1,40 @@
+{
+  "block-q7-sonnet": {
+    "concise": "BORDERLINE",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "YES",
+    "notes": "prose short, but reply is long/code-heavy overall"
+  },
+  "bulleted-q8-opus": {
+    "concise": "YES",
+    "bulleted": "YES",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "concise-q9-sonnet": {
+    "concise": "YES",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "NO",
+    "block": "NO"
+  },
+  "flow-q5-sonnet": {
+    "concise": "BORDERLINE",
+    "bulleted": "NO",
+    "tabular": "NO",
+    "flow": "YES",
+    "block": "NO",
+    "notes": "prose short, but reply is long/code-heavy overall"
+  },
+  "tabular-q6-opus": {
+    "concise": "BORDERLINE",
+    "bulleted": "NO",
+    "tabular": "YES",
+    "flow": "NO",
+    "block": "NO",
+    "notes": "little prose but two tables plus long code block"
+  }
+}
