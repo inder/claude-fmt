@@ -1,0 +1,15 @@
+{
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/00000000-0000-4000-8000-000000000001.jsonl",
+  "cwd": "/home/user/project",
+  "prompt_id": "00000000-0000-4000-8000-000000000004",
+  "permission_mode": "default",
+  "effort": {
+    "level": "high"
+  },
+  "hook_event_name": "Stop",
+  "stop_hook_active": true,
+  "last_assistant_message": "| Aspect | SQLite | PostgreSQL |\n| --- | --- | --- |\n| Architecture | Embedded database stored in a single file inside your app process; no server to install, configure, or secure | Full client-server database; a separate service to run or pay for, with connection management and network latency |\n| Operations | Trivial deployment; backup is copying the file | Managed offerings make operations easy, but there is more to run than with SQLite |\n| Performance (small app) | Very fast reads with no network hop; WAL mode handles many concurrent readers well | Strong concurrency via MVCC, with many simultaneous writers |\n| Writes | Single writer at a time | Many concurrent writers |\n| Features | Fewer built-in types and features; limited `ALTER TABLE`; no native user/role management | Rich types (JSONB, arrays, full-text search), extensions like PostGIS, robust constraints, fine-grained access control |\n| Scaling | Awkward with multiple app servers, since the file must sit on one machine's local disk | Scales from a small app to a large one without a migration |\n| Best fit | One server, light write load, minimal ops | Multiple app instances, heavy concurrent writes, or advanced features needed from the start |",
+  "background_tasks": [],
+  "session_crons": []
+}

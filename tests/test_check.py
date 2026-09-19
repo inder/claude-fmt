@@ -135,6 +135,12 @@ class CheckTest(unittest.TestCase):
         text = "| Item | Detail |\n| --- | --- |\n" + rows + "\n\n" + prose(120)
         self.assertEqual(K.check("tabular", text), (True, "table"))  # prose > 80 but < table words
 
+    def test_short_answer_ending_in_a_check_question_is_a_documented_false_pass(self):
+        # Accepted: a short prose answer ending "Does that make sense?" is
+        # indistinguishable from a clarifying question at this length.
+        text = prose(60) + " Does that make sense?"
+        self.assertEqual(K.check("bulleted", text), (True, "clarifying question"))
+
     def test_every_checked_mode_is_known_to_fmt_modes(self):
         self.assertLessEqual(set(K.CHECKED_MODES), set(M.MODE_TEXT))
 

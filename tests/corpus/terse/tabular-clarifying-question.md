@@ -1,0 +1,1 @@
+Before I compare them, it would help to know a little more about the app. How many people will use it at once, will more than one server write to the database, and does your host already provide one of these three databases for you?

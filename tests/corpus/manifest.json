@@ -481,6 +481,11 @@
       "failure_mode": "mermaid-source-in-plain-fence"
     },
     {
+      "file": "near/flow-mermaid-with-a-question.md",
+      "mode": "flow",
+      "failure_mode": "mermaid-then-a-question"
+    },
+    {
       "file": "near/flow-numbered-list-in-fence.md",
       "mode": "flow",
       "failure_mode": "numbered-list-in-fence"
@@ -509,6 +514,11 @@
       "file": "near/tabular-key-value-list.md",
       "mode": "tabular",
       "failure_mode": "key-value-list"
+    },
+    {
+      "file": "near/tabular-long-answer-ending-with-offer.md",
+      "mode": "tabular",
+      "failure_mode": "long-answer-ending-with-an-offer-question"
     },
     {
       "file": "near/tabular-pipes-without-separator.md",
@@ -543,6 +553,11 @@
       "what": "stacked-shared-borders"
     },
     {
+      "file": "terse/bulleted-clarifying-question-closing-paren.md",
+      "mode": "bulleted",
+      "what": "clarifying-question-ending-in-a-bracket"
+    },
+    {
       "file": "terse/bulleted-five-points.md",
       "mode": "bulleted",
       "what": "five-points"
@@ -568,6 +583,11 @@
       "what": "sixty-words"
     },
     {
+      "file": "terse/flow-clarifying-question.md",
+      "mode": "flow",
+      "what": "clarifying-question"
+    },
+    {
       "file": "terse/flow-custom-fence-label.md",
       "mode": "flow",
       "what": "unfamiliar-fence-label"
@@ -586,6 +606,11 @@
       "file": "terse/flow-vertical-ascii.md",
       "mode": "flow",
       "what": "vertical-ascii"
+    },
+    {
+      "file": "terse/tabular-clarifying-question.md",
+      "mode": "tabular",
+      "what": "clarifying-question"
     },
     {
       "file": "terse/tabular-short-dashes-and-command.md",

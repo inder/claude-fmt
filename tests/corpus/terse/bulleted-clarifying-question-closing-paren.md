@@ -1,0 +1,1 @@
+Before I list them, I need to know more about your setup and what you care about most. Is this for one developer on a laptop, or a team deploying to several servers, and do you already run a database for anything else in the company? Also, is cost the main concern?)

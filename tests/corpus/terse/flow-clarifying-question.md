@@ -1,0 +1,1 @@
+Before I draw it, I need to know which part matters to you most. Should the diagram cover the whole request from typing the address to the page rendering, or only the DNS lookup and the TLS handshake in the middle?

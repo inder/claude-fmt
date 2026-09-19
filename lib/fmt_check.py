@@ -40,6 +40,7 @@ _MERMAID_FIRST_LINE = re.compile(
     )
 )
 _WORD = re.compile(r"[^\W_]", re.UNICODE)
+_QUESTION_END = re.compile(r"\?[\"'\u201d\u2019)\]*_]*\s*$")
 
 
 class _Fence(object):
@@ -240,6 +241,16 @@ def _check_diagram(mode, prose, fences):
     return False, shortfall
 
 
+def _is_clarifying_question(prose):
+    """A short reply ending in a question, which asks the user something rather than answering."""
+    lines = [line.strip() for line in prose if line is not None and line.strip()]
+    return (
+        bool(lines)
+        and _QUESTION_END.search(lines[-1]) is not None
+        and count_words(prose) <= M.QUESTION_MAX_WORDS
+    )
+
+
 # concise. Invariant: the reply is short, about CONCISE_TARGET_WORDS words of
 # prose and never more than CONCISE_MAX_WORDS; code does not count. One
 # semantic failure mode: too long, however it is laid out.
@@ -250,10 +261,15 @@ def check(mode, text):
             return True, "not checked"
         prose, fences = split_blocks(text)
         if mode in ("flow", "block"):
-            return _check_diagram(mode, prose, fences)
+            ok, reason = _check_diagram(mode, prose, fences)
+            if not ok and "Mermaid" not in reason and _is_clarifying_question(prose):
+                return True, "clarifying question"
+            return ok, reason
         prose_words = count_words(prose)
         if prose_words < M.SHORT_REPLY_WORDS:
             return True, "short reply"
+        if _is_clarifying_question(prose):
+            return True, "clarifying question"
         if mode == "concise":
             if prose_words > M.CONCISE_MAX_WORDS:
                 return False, "%d words of prose (limit %d)" % (prose_words, M.CONCISE_MAX_WORDS)
