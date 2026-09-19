@@ -1,0 +1,15 @@
+{
+  "name": "claude-fmt",
+  "description": "The fmt plugin: keep every Claude reply in the format you choose.",
+  "owner": {
+    "name": "Inder Sabharwal",
+    "url": "https://github.com/inder"
+  },
+  "plugins": [
+    {
+      "name": "fmt",
+      "source": "./",
+      "description": "Keep every Claude reply in the format you choose."
+    }
+  ]
+}

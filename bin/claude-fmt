@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""claude-fmt: show or set the fmt plugin's output mode from a shell.
+
+  claude-fmt mode [<mode> | custom "<instruction>"]   same as /fmt:mode
+  claude-fmt get                                      print the current mode
+  claude-fmt reset                                    back to original
+  claude-fmt path                                     print the state file path
+"""
+
+import os
+import sys
+
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "lib")
+)
+
+import fmt_core  # noqa: E402
+
+
+def main(argv):
+    # The messages contain "\u2192"; on a legacy locale an unencodable character must
+    # not turn a successful change into a traceback.
+    try:
+        sys.stdout.reconfigure(errors="replace")
+    except (AttributeError, ValueError):
+        pass
+    command = argv[1] if len(argv) > 1 else "get"
+    rest = " ".join(argv[2:])
+    if command == "mode":
+        ok, message = fmt_core.run_mode_command(rest)
+    elif command == "get":
+        ok, message = fmt_core.run_mode_command("")
+    elif command == "reset":
+        ok, message = fmt_core.run_mode_command("original")
+    elif command == "path":
+        ok, message = True, fmt_core.state_path()
+    else:
+        sys.stderr.write(__doc__)
+        return 2
+    print(message)
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -1,0 +1,13 @@
+{
+  "name": "fmt",
+  "version": "0.0.1",
+  "description": "Keep every Claude reply in the format you choose: concise, elaborate, bulleted, tabular, flow or block diagram, your own instruction, or original.",
+  "author": {
+    "name": "Inder Sabharwal",
+    "url": "https://github.com/inder"
+  },
+  "homepage": "https://github.com/inder/claude-fmt",
+  "repository": "https://github.com/inder/claude-fmt",
+  "license": "MIT",
+  "keywords": ["format", "output", "style", "hooks"]
+}
