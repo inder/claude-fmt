@@ -39,13 +39,32 @@ from harness import QUESTIONS, PROSE  # noqa: E402
 HOME = os.path.expanduser("~")
 GLOBAL_SETTINGS = os.path.join(HOME, ".claude", "settings.json")
 REAL_STATE = os.path.join(HOME, ".config", "claude-fmt", "state.json")
-SESSION = "claude-fmt-live"
+SESSION = "claude-fmt-live-%d" % os.getpid()
+PLUGIN_FILES = [
+    os.path.join(HOME, ".claude", "plugins", "known_marketplaces.json"),
+    os.path.join(HOME, ".claude", "plugins", "installed_plugins.json"),
+]
 TURN_TIMEOUT = 240
 STABLE_SECONDS = 8
 
 
 class Flake(Exception):
     """A mechanical failure driving the terminal, as opposed to an oracle failure."""
+
+
+def claude_fmt_traces():
+    """Everything outside the scratch project that would mention claude-fmt if it were installed."""
+    found = []
+    for path in PLUGIN_FILES:
+        try:
+            with open(path, encoding="utf-8") as f:
+                if "claude-fmt" in f.read():
+                    found.append(path)
+        except OSError:
+            pass
+    found += glob.glob(os.path.join(HOME, ".claude", "plugins", "cache", "claude-fmt"))
+    found += glob.glob(os.path.join(HOME, ".claude", "plugins", "data", "fmt-claude-fmt*"))
+    return found
 
 
 def fingerprint(path):
@@ -105,7 +124,7 @@ class Scratch(object):
 
     def start(self, no_inject=False):
         tmux("kill-session", "-t", SESSION)
-        command = "env -u CLAUDE_FMT_STATE %s claude --model %s --strict-mcp-config --setting-sources project,local" % (
+        command = "env -u CLAUDE_FMT_STATE %s claude --model %s --strict-mcp-config --setting-sources project,local --tools ''" % (
             " ".join(self.env(no_inject)), self.model)
         tmux("new-session", "-d", "-s", SESSION, "-x", "200", "-y", "50", "-c", self.dir, command, check=True)
         self.started = time.time()
@@ -123,14 +142,10 @@ class Scratch(object):
         tmux("kill-session", "-t", SESSION)
 
     def transcript(self):
-        paths = []
-        for path in glob.glob(os.path.join(HOME, ".claude", "projects", "*", "*.jsonl")):
-            if os.path.getmtime(path) < self.started - 5:
-                continue
-            with open(path, encoding="utf-8", errors="ignore") as f:
-                head = f.read(20000)
-            if self.dir in head:
-                paths.append(path)
+        paths = [
+            path for path in glob.glob(os.path.join(common.transcript_dir(self.dir), "*.jsonl"))
+            if os.path.getmtime(path) >= self.started - 5
+        ]
         if not paths:
             return []
         newest = max(paths, key=os.path.getmtime)
@@ -144,8 +159,9 @@ class Scratch(object):
         return common.assistant_texts(events)
 
     def mode(self, arg, expect):
+        seen = pane().count(expect)
         send_text("/fmt:mode %s" % arg if arg else "/fmt:mode")
-        wait_for(lambda: expect in pane(), 30, "'%s' on screen" % expect)
+        wait_for(lambda: pane().count(expect) > seen, 30, "a new '%s' on screen" % expect)
 
     def ask(self, prompt):
         """Send a prompt; return the assistant texts that answered it."""
@@ -210,7 +226,8 @@ class Scratch(object):
     def cleanup(self):
         tmux("kill-session", "-t", SESSION)
         self.cli("uninstall", "fmt@claude-fmt", "--scope", "local")
-        self.cli("marketplace", "remove", "claude-fmt")
+        self.cli("marketplace", "remove", "claude-fmt", "--scope", "local")
+        shutil.rmtree(common.transcript_dir(self.dir), ignore_errors=True)
         for path in glob.glob(os.path.join(HOME, ".claude", "plugins", "cache", "claude-fmt")) + glob.glob(
             os.path.join(HOME, ".claude", "plugins", "data", "fmt-claude-fmt*")
         ):
@@ -245,9 +262,18 @@ def main():
         print("tmux is required")
         return 2
 
+    if os.environ.get("CLAUDE_CONFIG_DIR"):
+        print("CLAUDE_CONFIG_DIR is set; this script checks the default config location only")
+        return 2
+    existing = claude_fmt_traces()
+    if existing:
+        print("claude-fmt is already registered or installed here (%s). Uninstall it first: this "
+              "script installs and removes its own copy and must not touch yours." % ", ".join(existing))
+        return 2
+
     out = common.results_dir("interactive")
     if not args.skip_calibration:
-        misgrades = common.calibrate_judge(list(QUESTIONS), args.model)
+        misgrades = common.calibrate_judge(list(QUESTIONS))
         if misgrades:
             print("ABORT: judge misgraded known fixtures: %s" % misgrades)
             return 2
@@ -256,8 +282,11 @@ def main():
     results, flakes = [], []
     try:
         via = scratch.install()
-        results.append({"kind": "install", "source": args.source, "via": via, "pass": scratch.enabled(),
-                        "problems": [] if scratch.enabled() else ["plugin not enabled"]})
+        problems = [] if scratch.enabled() else ["plugin not enabled"]
+        if via != "tui":
+            problems.append("the /plugin menu could not be driven; installed with the CLI instead")
+        results.append({"kind": "install", "source": args.source, "via": via, "pass": not problems,
+                        "problems": problems})
         print("install via %s: %s" % (via, "PASS" if scratch.enabled() else "FAIL"), flush=True)
 
         # Oracle 2: every checked mode in one fresh session.
@@ -311,6 +340,10 @@ def main():
             result["problems"].append("first reply already passed; nothing was rescued")
         if "Stop hook feedback" not in pane():
             result["problems"].append("'Stop hook feedback' not on screen")
+        stops = [(r.get("retry"), r.get("output")) for r in common.read_trace(scratch.trace)
+                 if r.get("handler") == "stop"][-2:]
+        if stops != [(False, True), (True, False)]:
+            result["problems"].append("Stop trace %s, expected [send-back, silent retry]" % stops)
         result["pass"] = not result["problems"]
         results.append(result)
         print("%-4s forced miss replies=%d %s" % ("PASS" if result["pass"] else "FAIL", len(texts), "; ".join(result["problems"])), flush=True)
@@ -321,12 +354,17 @@ def main():
         print("FLAKE: %s" % err, flush=True)
     finally:
         scratch.cleanup()
+        common.cleanup_run_dir()
+        guard_ok = True
         try:
             scratch.assert_untouched("cleanup")
-            guard_ok = True
         except RuntimeError as err:
             guard_ok = False
             print("GUARD: %s" % err)
+        leftovers = claude_fmt_traces()
+        if leftovers:
+            guard_ok = False
+            print("GUARD: claude-fmt left behind in %s" % ", ".join(leftovers))
 
     common.write_json(os.path.join(out, "results.json"), {"results": results, "flakes": flakes, "guard_ok": guard_ok})
     passed = sum(1 for r in results if r["pass"])

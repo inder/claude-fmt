@@ -29,7 +29,9 @@ BULLET_RATIO = 0.6
 
 # bulleted: a "bullet" longer than this is a paragraph wearing a dash. Live
 # testing caught two 150-word bullets passing as a list; the longest bullet in
-# the real captured corpus is 47 words, so 80 leaves a wide margin.
+# the real captured corpus is 47 words, so 80 leaves a wide margin. The cap
+# applies per line, so a hard-wrapped bullet whose continuation lines are
+# indented is measured by its first line only (accepted: a false pass).
 BULLET_MAX_WORDS = 80
 
 # tabular: the instruction's example separator is "| --- | --- |", with spaces.

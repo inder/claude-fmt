@@ -32,7 +32,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import common  # noqa: E402
@@ -82,6 +81,7 @@ def grade(case, kind):
     elif texts:
         final = texts[-1]
         stops = [(r.get("retry"), r.get("output")) for r in case["trace"] if r.get("handler") == "stop"]
+        case["stops"] = stops
         if len(texts) == 2 and stops != [(False, True), (True, False)]:
             problems.append("two replies but Stop trace %s, expected [send-back, silent retry]" % stops)
         ok, reason = common.check(mode, final)
@@ -98,7 +98,6 @@ def grade(case, kind):
                 problems.append("forced miss: first reply already passed, so nothing was rescued")
             # The retry guard, observed directly: one send-back, then the
             # continuation's Stop is marked as a retry and produces nothing.
-            stops = [(r.get("retry"), r.get("output")) for r in case["trace"] if r.get("handler") == "stop"]
             if stops != [(False, True), (True, False)]:
                 problems.append("forced miss: Stop trace %s, expected [send-back, silent retry]" % stops)
         if kind == "natural" and not any(r.get("handler") == "inject" and r.get("output") for r in case["trace"]):
@@ -112,6 +111,8 @@ def grade(case, kind):
     if kind == "adversarial":
         shape = [p for p in problems if p.startswith(("final reply fails", "judge "))]
         case["notes"] = shape
+        case["in_shape"] = not shape
+        case["rescued"] = not shape and len(texts) == 2
         problems = [p for p in problems if p not in shape]
     case["problems"] = problems
     case["pass"] = not problems
@@ -126,11 +127,18 @@ def main():
     args = parser.parse_args()
 
     out = common.results_dir("harness")
-    work = tempfile.mkdtemp(prefix="fmt-harness-")
+    try:
+        return run(args, out)
+    finally:
+        common.cleanup_run_dir()
+
+
+def run(args, out):
+    work = common.run_dir()
     modes = list(QUESTIONS)
 
-    print("calibrating judge ...", flush=True)
-    misgrades = common.calibrate_judge(modes, args.model)
+    print("calibrating judge (%s) ..." % common.JUDGE_MODEL, flush=True)
+    misgrades = common.calibrate_judge(modes)
     common.write_json(os.path.join(out, "judge-calibration.json"), misgrades)
     if misgrades:
         print("ABORT: judge misgraded known fixtures: %s" % json.dumps(misgrades, indent=2))
@@ -160,7 +168,10 @@ def main():
     results.sort(key=lambda c: c["name"])
     common.write_json(os.path.join(out, "results.json"), results)
     passed = sum(c["pass"] for c in results)
-    print("\n%d/%d cases passed. Details: %s" % (passed, len(results), out))
+    adversarial = [c for c in results if c["kind"] == "adversarial"]
+    print("\n%d/%d cases passed. Adversarial (reported, not gated): %d/%d in shape, %d rescued by the "
+          "send-back. Details: %s" % (passed, len(results), sum(c["in_shape"] for c in adversarial),
+                                      len(adversarial), sum(c["rescued"] for c in adversarial), out))
     return 0 if passed == len(results) else 1
 
 

@@ -29,6 +29,42 @@ def stamp():
     return time.strftime("%Y%m%d-%H%M%S")
 
 
+# One judge model for calibration and grading alike, so the judge that is
+# calibrated is the judge that grades.
+JUDGE_MODEL = "sonnet"
+
+_RUN_DIR = None
+
+
+def project_slug(path):
+    """Claude Code's transcript folder name for a working directory."""
+    return re.sub(r"[^A-Za-z0-9]", "-", os.path.realpath(path))
+
+
+def transcript_dir(path):
+    return os.path.join(os.path.expanduser("~"), ".claude", "projects", project_slug(path))
+
+
+def run_dir():
+    """The one scratch working directory every claude call in this run shares."""
+    global _RUN_DIR
+    if _RUN_DIR is None:
+        _RUN_DIR = os.path.realpath(tempfile.mkdtemp(prefix="fmt-live-"))
+    return _RUN_DIR
+
+
+def cleanup_run_dir():
+    """Remove the run's scratch directory and the transcripts Claude Code kept for it."""
+    global _RUN_DIR
+    if _RUN_DIR is None:
+        return
+    import shutil
+
+    shutil.rmtree(transcript_dir(_RUN_DIR), ignore_errors=True)
+    shutil.rmtree(_RUN_DIR, ignore_errors=True)
+    _RUN_DIR = None
+
+
 def results_dir(name):
     path = os.path.join(ROOT, "tests", "live", "results", "%s-%s" % (stamp(), name))
     os.makedirs(path, exist_ok=True)
@@ -39,7 +75,7 @@ def run_claude(prompt, model, env_extra=None, plugin_dir=ROOT, cwd=None, timeout
     """Run `claude -p` with the plugin loaded; return (assistant_texts, raw_events)."""
     env = dict(os.environ)
     env.update(env_extra or {})
-    cwd = cwd or tempfile.mkdtemp(prefix="fmt-live-")
+    cwd = cwd or run_dir()
     cmd = ["claude", "-p", prompt, "--model", model, "--output-format", "stream-json", "--verbose"]
     cmd += BASE_FLAGS
     if plugin_dir:
@@ -94,7 +130,7 @@ Answer with exactly one line of JSON and nothing else:
 {{"verdict": "YES" or "NO", "evidence": "<quote or describe the specific feature you relied on, max 25 words>"}}"""
 
 
-def judge(mode, reply, model="sonnet"):
+def judge(mode, reply, model=JUDGE_MODEL):
     """Ask an independent Claude to grade `reply` against `mode`. Returns (verdict, evidence).
 
     The judge never sees the checker. Its own run disables the plugin's
@@ -131,7 +167,7 @@ CALIBRATION_NEAR = {
 }
 
 
-def calibrate_judge(modes, model="sonnet"):
+def calibrate_judge(modes, model=JUDGE_MODEL):
     """Grade one known-fail and one known-pass reply per mode. Returns a list of misgrades."""
     with open(os.path.join(CORPUS, "manifest.json"), encoding="utf-8") as f:
         manifest = json.load(f)

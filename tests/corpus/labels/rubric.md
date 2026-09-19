@@ -22,9 +22,10 @@ against every format (a reply can satisfy several):
 
 Answers were YES, NO or BORDERLINE (with a short reason).
 
-The two grading batches used slightly different wording. Batch 1 (`grader-batch1.json`, the first 24
-captures) did not say that code blocks may sit alongside tables. Batch 2 (`grader-batch2.json`, the five
-code-heavy captures) did, and that sentence is kept above, because the plugin's own instruction tells
-Claude to put code and commands in fenced blocks. It was missing from an earlier version of this file,
-which made the live judge fail two correct tabular replies (tables carrying the answer, commands in
-bash blocks) until it was restored.
+The exact grader prompts are in `prompts.md`. They differ slightly: batch 2 told the grader that code
+blocks alongside tables are fine, and batch 1 did not. The **tabular** line above includes that sentence.
+The first committed version of this file omitted it, and the live judge (which reads this file) then
+failed two correct tabular replies: tables carrying the answer, with commands in bash blocks. The
+sentence was added because the plugin's own instruction tells Claude to put code and commands in
+fenced blocks, so a tabular reply to a how-to question legitimately has them. A table inside a code
+block still does not count.

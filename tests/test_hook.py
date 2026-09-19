@@ -3,6 +3,7 @@ import os
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 import helpers
 import fmt_core
@@ -122,6 +123,23 @@ class ExpandHookTest(unittest.TestCase):
         self.assertEqual(records[0]["kind"], "block")
         self.assertEqual({r["retry"] for r in records}, {False})
         self.assertEqual(records[1]["kind"], "context")
+
+    def test_trace_is_off_by_default(self):
+        env = dict(os.environ)
+        env.pop("CLAUDE_FMT_TRACE", None)
+        with mock.patch.dict(os.environ, env, clear=True):
+            before = set(os.listdir(os.path.dirname(self.path)))
+            helpers.run_hook("expand", helpers.fixture("expansion_tabular"), self.path)
+            after = set(os.listdir(os.path.dirname(self.path)))
+        self.assertEqual(after - before, {"state.json"})
+
+    def test_trace_marks_a_stop_retry(self):
+        trace = os.path.join(os.path.dirname(self.path), "trace.jsonl")
+        fmt_core.write_state("tabular", path=self.path)
+        helpers.run_hook("stop", helpers.fixture("stop_retry"), self.path, extra_env={"CLAUDE_FMT_TRACE": trace})
+        with open(trace, encoding="utf-8") as f:
+            record = json.loads(f.readline())
+        self.assertEqual((record["handler"], record["retry"], record["output"]), ("stop", True, False))
 
     def test_trace_is_off_by_default_and_never_breaks_the_hook(self):
         result = helpers.run_hook(
