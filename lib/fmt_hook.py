@@ -8,6 +8,7 @@ carries on as if the plugin were not installed.
 
 import json
 import os
+import re
 import sys
 import traceback
 
@@ -33,7 +34,37 @@ def handle_expand(payload):
     return {"decision": "block", "reason": message}
 
 
-HANDLERS = {"expand": handle_expand}
+# A prompt that is itself a mode command. It reaches UserPromptSubmit only when
+# the expansion hook did not handle it, and injecting then would carry the mode
+# that is about to be replaced. "/mode" is included because Claude Code
+# resolves an unqualified "/mode" to fmt:mode when no other skill has that name.
+_MODE_COMMAND_PROMPT = re.compile(r"^\s*/(fmt:|mode(\s|$))")
+
+
+def handle_inject(payload):
+    """UserPromptSubmit: add the active mode's formatting instruction to Claude's context."""
+    if payload.get("hook_event_name") != "UserPromptSubmit":
+        return None
+    if os.environ.get("CLAUDE_FMT_NO_INJECT") == "1":
+        return None
+    prompt = payload.get("prompt")
+    if isinstance(prompt, str) and _MODE_COMMAND_PROMPT.match(prompt):
+        return None
+    from fmt_core import read_state
+    from fmt_modes import build_instruction
+
+    instruction = build_instruction(read_state())
+    if instruction is None:
+        return None
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "UserPromptSubmit",
+            "additionalContext": instruction,
+        }
+    }
+
+
+HANDLERS = {"expand": handle_expand, "inject": handle_inject}
 
 
 def main(argv):
