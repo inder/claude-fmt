@@ -66,6 +66,11 @@ class StopHookTest(unittest.TestCase):
         retry = dict(helpers.fixture("stop_first"), stop_hook_active=True)
         self.assert_silent(self.stop(retry))
 
+    def test_any_truthy_retry_flag_counts_as_a_retry(self):
+        fmt_core.write_state("tabular", path=self.path)
+        for flag in (True, 1, "true"):
+            self.assert_silent(self.stop(dict(helpers.fixture("stop_first"), stop_hook_active=flag)))
+
     def test_retry_guard_comes_before_reading_state(self):
         import fmt_hook
 
@@ -142,6 +147,10 @@ class StopHookTest(unittest.TestCase):
 
 
 class SendBackTextTest(unittest.TestCase):
+    def test_unchecked_modes_do_not_raise(self):
+        for mode in ("custom", "elaborate", "shouty"):
+            self.assertIn("(why)", fmt_modes.build_send_back(mode, "why"))
+
     def test_every_checked_mode_has_a_send_back(self):
         import fmt_check
 

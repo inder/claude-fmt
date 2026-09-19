@@ -159,7 +159,10 @@ SEND_BACK = (
 
 def build_send_back(mode, reason):
     """Return the Stop hook's message for a reply that missed `mode`'s shape."""
-    return SEND_BACK.format(label=LABELS[mode], reason=reason, rule=MODE_TEXT[mode])
+    # Only checked modes are ever sent back; the fallback keeps an unexpected
+    # mode from raising.
+    rule = MODE_TEXT.get(mode, "")
+    return SEND_BACK.format(label=LABELS.get(mode, mode), reason=reason, rule=rule)
 
 
 def build_instruction(state):

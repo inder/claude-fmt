@@ -70,7 +70,7 @@ def handle_stop(payload):
         return None
     # The reply that follows our send-back is never checked, so there is at
     # most one retry per turn. Checked before reading any state.
-    if payload.get("stop_hook_active") is True:
+    if payload.get("stop_hook_active"):
         return None
     from fmt_check import CHECKED_MODES, check
     from fmt_core import read_state

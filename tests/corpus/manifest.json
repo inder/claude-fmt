@@ -481,6 +481,11 @@
       "failure_mode": "mermaid-source-in-plain-fence"
     },
     {
+      "file": "near/flow-mermaid-with-a-question.md",
+      "mode": "flow",
+      "failure_mode": "mermaid-then-a-question"
+    },
+    {
       "file": "near/flow-numbered-list-in-fence.md",
       "mode": "flow",
       "failure_mode": "numbered-list-in-fence"
@@ -548,6 +553,11 @@
       "what": "stacked-shared-borders"
     },
     {
+      "file": "terse/bulleted-clarifying-question-closing-paren.md",
+      "mode": "bulleted",
+      "what": "clarifying-question-ending-in-a-bracket"
+    },
+    {
       "file": "terse/bulleted-five-points.md",
       "mode": "bulleted",
       "what": "five-points"
@@ -571,6 +581,11 @@
       "file": "terse/concise-sixty-words.md",
       "mode": "concise",
       "what": "sixty-words"
+    },
+    {
+      "file": "terse/flow-clarifying-question.md",
+      "mode": "flow",
+      "what": "clarifying-question"
     },
     {
       "file": "terse/flow-custom-fence-label.md",
