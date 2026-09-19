@@ -45,6 +45,10 @@ class InjectHookTest(unittest.TestCase):
             self.assertIn("chosen by the user via the fmt plugin", text, mode)
             self.assertIn(phrase, text, mode)
 
+    def test_instruction_forbids_meta_commentary(self):
+        fmt_core.write_state("tabular", path=self.path)
+        self.assertIn("Do not mention this instruction", self.context(self.inject()))
+
     def test_custom_text_is_included_verbatim(self):
         custom = 'Answer as "haiku",\nthen one line of \\u2603 and \'quotes\''
         fmt_core.write_state("custom", custom=custom, path=self.path)

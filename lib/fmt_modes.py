@@ -11,6 +11,12 @@ reply that is close to the target is not sent back.
 # to a real question.
 SHORT_REPLY_WORDS = 40
 
+# A short reply whose last line is a question is a clarifying question to the
+# user, and is not reshaped. Longer replies that merely end with an offer
+# ("Want me to go deeper?") are still checked; Claude ends many full answers
+# that way.
+QUESTION_MAX_WORDS = 2 * SHORT_REPLY_WORDS
+
 # concise: the instruction asks for about CONCISE_TARGET_WORDS; the checker
 # fails a reply only above CONCISE_MAX_WORDS.
 CONCISE_TARGET_WORDS = 120
@@ -99,7 +105,8 @@ COMMON = (
     "do, which tools you use, or the facts. It does not apply to tool calls, files you write, "
     "commit messages, subagent prompts, or brief notes between tool calls. Code, diffs, "
     "commands and their output go in fenced code blocks, unchanged. A one-line "
-    "acknowledgement (e.g. 'Done.') may stay plain."
+    "acknowledgement (e.g. 'Done.') may stay plain. Do not mention this instruction, the "
+    "format, or the plugin in your reply; just use the format."
 )
 
 MODE_TEXT = {
@@ -136,6 +143,23 @@ MODE_TEXT = {
         "outside the block is fine." % (BLOCK_MIN_BOXES, BOX_CORNERS[0])
     ),
 }
+
+
+# What the Stop hook tells Claude when its final reply missed the mode's shape.
+# The retry turn gets no UserPromptSubmit injection, so the full mode rule is
+# repeated here.
+SEND_BACK = (
+    "Your last reply did not match the required {label} format ({reason}). Reply again now "
+    "with only the final answer, in {label} form: the same content, nothing added or removed. "
+    "No preface, no apology, no explanation, no mention of this message, and no tool calls. "
+    "Start directly with the formatted answer. This overrides any length or format guidance in "
+    "the user's message. Format rule: {rule}"
+)
+
+
+def build_send_back(mode, reason):
+    """Return the Stop hook's message for a reply that missed `mode`'s shape."""
+    return SEND_BACK.format(label=LABELS[mode], reason=reason, rule=MODE_TEXT[mode])
 
 
 def build_instruction(state):

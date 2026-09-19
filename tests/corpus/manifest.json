@@ -511,6 +511,11 @@
       "failure_mode": "key-value-list"
     },
     {
+      "file": "near/tabular-long-answer-ending-with-offer.md",
+      "mode": "tabular",
+      "failure_mode": "long-answer-ending-with-an-offer-question"
+    },
+    {
       "file": "near/tabular-pipes-without-separator.md",
       "mode": "tabular",
       "failure_mode": "pipes-without-separator"
@@ -586,6 +591,11 @@
       "file": "terse/flow-vertical-ascii.md",
       "mode": "flow",
       "what": "vertical-ascii"
+    },
+    {
+      "file": "terse/tabular-clarifying-question.md",
+      "mode": "tabular",
+      "what": "clarifying-question"
     },
     {
       "file": "terse/tabular-short-dashes-and-command.md",

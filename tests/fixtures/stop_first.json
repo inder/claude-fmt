@@ -1,0 +1,15 @@
+{
+  "session_id": "00000000-0000-4000-8000-000000000001",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/00000000-0000-4000-8000-000000000001.jsonl",
+  "cwd": "/home/user/project",
+  "prompt_id": "00000000-0000-4000-8000-000000000004",
+  "permission_mode": "default",
+  "effort": {
+    "level": "high"
+  },
+  "hook_event_name": "Stop",
+  "stop_hook_active": false,
+  "last_assistant_message": "SQLite is an embedded database that lives in a single file inside your app process, so there is no server to install, configure or back up beyond copying the file. For a small web app with modest traffic it is often the simplest choice.\n\nPostgreSQL is a full client-server database with strong concurrency, rich types and extensions. It needs a server to run, but it handles many simultaneous writers and scales well as the product grows.",
+  "background_tasks": [],
+  "session_crons": []
+}

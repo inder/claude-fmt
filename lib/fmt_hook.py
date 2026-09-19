@@ -64,7 +64,38 @@ def handle_inject(payload):
     }
 
 
-HANDLERS = {"expand": handle_expand, "inject": handle_inject}
+def handle_stop(payload):
+    """Stop: if the final reply missed the mode's shape, send it back once to be re-sent."""
+    if payload.get("hook_event_name") != "Stop":
+        return None
+    # The reply that follows our send-back is never checked, so there is at
+    # most one retry per turn. Checked before reading any state.
+    if payload.get("stop_hook_active") is True:
+        return None
+    from fmt_check import CHECKED_MODES, check
+    from fmt_core import read_state
+    from fmt_modes import build_send_back
+
+    mode = read_state().get("mode")
+    if mode not in CHECKED_MODES:
+        return None
+    text = payload.get("last_assistant_message")
+    if not isinstance(text, str) or not text.strip():
+        return None
+    ok, reason = check(mode, text)
+    if ok:
+        return None
+    # Debug-only diagnostic: which mode missed and why.
+    sys.stderr.write("fmt: %s reply sent back: %s\n" % (mode, reason))
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "Stop",
+            "additionalContext": build_send_back(mode, reason),
+        }
+    }
+
+
+HANDLERS = {"expand": handle_expand, "inject": handle_inject, "stop": handle_stop}
 
 
 def main(argv):

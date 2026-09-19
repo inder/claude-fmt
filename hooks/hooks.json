@@ -30,6 +30,21 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/lib/fmt_hook.py",
+              "stop"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }
