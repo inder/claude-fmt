@@ -71,7 +71,7 @@ class InjectHookTest(unittest.TestCase):
     def test_other_prompts_are_injected(self):
         fmt_core.write_state("tabular", path=self.path)
         base = helpers.fixture("submit_question")
-        for prompt in ("/review", "/modes", "why does /fmt:mode exist?", "", None):
+        for prompt in ("/review", "/modes", "/model sonnet", "why does /fmt:mode exist?", "", None):
             self.assertIn("Markdown tables", self.context(self.inject(dict(base, prompt=prompt))))
 
     def test_no_inject_switch_silences_injection(self):
@@ -116,16 +116,28 @@ class ModesTest(unittest.TestCase):
         self.assertLess(fmt_modes.CONCISE_TARGET_WORDS, fmt_modes.CONCISE_MAX_WORDS)
         self.assertLess(fmt_modes.SHORT_REPLY_WORDS, fmt_modes.CONCISE_TARGET_WORDS)
 
-    def test_tabular_example_separator_matches_the_documented_checker_pattern(self):
-        pattern = re.compile(r"^\s*\|?(\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$")
+    def test_tabular_example_separator_matches_the_checker_pattern(self):
+        pattern = re.compile(fmt_modes.TABLE_SEPARATOR_RE)
         self.assertRegex(fmt_modes.TABLE_SEPARATOR_EXAMPLE, pattern)
         self.assertIn(fmt_modes.TABLE_SEPARATOR_EXAMPLE, fmt_modes.MODE_TEXT["tabular"])
         for row in ("|---|---|", "| :--- | ---: |", "--- | ---"):
             self.assertRegex(row, pattern)
 
+    def test_single_column_separator_is_not_a_table(self):
+        self.assertNotRegex("|---|", re.compile(fmt_modes.TABLE_SEPARATOR_RE))
+
     def test_instruction_names_no_word_count_for_the_short_reply_exemption(self):
-        text = fmt_modes.build_instruction({"mode": "tabular"})
-        self.assertNotIn(str(fmt_modes.SHORT_REPLY_WORDS), text)
+        for mode in fmt_modes.MODE_TEXT:
+            text = fmt_modes.build_instruction({"mode": mode})
+            self.assertNotIn(str(fmt_modes.SHORT_REPLY_WORDS), text, mode)
+
+    def test_every_instructed_mode_has_a_label(self):
+        self.assertLessEqual(set(fmt_modes.MODE_TEXT) | {"custom"}, set(fmt_modes.LABELS))
+
+    def test_diagram_instructions_use_the_shared_glyphs(self):
+        self.assertIn(fmt_modes.FLOW_ARROW_GLYPHS[0], fmt_modes.MODE_TEXT["flow"])
+        self.assertIn(fmt_modes.BOX_CORNERS[0], fmt_modes.MODE_TEXT["block"])
+        self.assertNotIn("single fenced", fmt_modes.MODE_TEXT["flow"] + fmt_modes.MODE_TEXT["block"])
 
     def test_diagram_modes_forbid_mermaid_and_require_a_fenced_block(self):
         for mode in ("flow", "block"):

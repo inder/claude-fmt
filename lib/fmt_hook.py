@@ -36,7 +36,8 @@ def handle_expand(payload):
 
 # A prompt that is itself a mode command. It reaches UserPromptSubmit only when
 # the expansion hook did not handle it, and injecting then would carry the mode
-# that is about to be replaced.
+# that is about to be replaced. "/mode" is included because Claude Code
+# resolves an unqualified "/mode" to fmt:mode when no other skill has that name.
 _MODE_COMMAND_PROMPT = re.compile(r"^\s*/(fmt:|mode(\s|$))")
 
 

@@ -22,16 +22,32 @@ CONCISE_MAX_WORDS = 200
 BULLET_RATIO = 0.6
 
 # tabular: the instruction's example separator is "| --- | --- |", with spaces.
-# The checker must accept a separator row with optional spaces and colons in
-# each cell, for example r"^\s*\|?(\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$".
+# The checker matches separator rows with TABLE_SEPARATOR_RE, which allows
+# optional spaces and alignment colons in each cell. A single-column table
+# ("|---|") is deliberately not recognized.
 TABLE_SEPARATOR_EXAMPLE = "| --- | --- |"
+TABLE_SEPARATOR_RE = r"^\s*\|?(\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$"
 
-# block: two or more boxes. The checker must count top-left corners the same
-# way for both drawing styles (one "┌" or one leading "+-" per box).
-BLOCK_MIN_BOXES = 2
-
-# flow: at least FLOW_MIN_STEPS steps, so at least FLOW_MIN_STEPS - 1 arrows.
+# flow: at least FLOW_MIN_STEPS steps, so at least FLOW_MIN_STEPS - 1 arrows,
+# inside a fenced block. The instruction names the first few glyphs; the
+# checker accepts all of them plus ASCII arrows (->, -->, =>) and a line that
+# is only "v" (an ASCII down-arrow under a "|").
 FLOW_MIN_STEPS = 3
+FLOW_ARROW_GLYPHS = ("\u2192", "\u2193", "\u2190", "\u2191", "\u27f6", "\u25b6", "\u25bc", "\u25ba", "\u25b8", "\u25be")
+
+# block: two or more boxes inside a fenced block. Unicode boxes are counted by
+# top-left corners. ASCII boxes are counted as border segments "+--+" found
+# with overlapping matches (so "+---+---+" is two segments), divided by two
+# for top and bottom borders, rounded up. Counting a leading "+-" per line is
+# wrong both ways: one box has two such lines, and two side-by-side boxes
+# share one line.
+BLOCK_MIN_BOXES = 2
+BOX_CORNERS = ("\u250c", "\u256d", "\u2554")
+
+# Mermaid renders as raw source in the terminal, so a fence tagged "mermaid",
+# or whose first line starts with one of these keywords, fails both diagram
+# modes even though its "-->" arrows would otherwise count.
+MERMAID_KEYWORDS = ("graph", "flowchart", "sequenceDiagram", "stateDiagram", "classDiagram", "block-beta")
 
 LABELS = {
     "concise": "concise",
@@ -74,16 +90,17 @@ MODE_TEXT = {
         "item. At most one short sentence before or after the tables." % TABLE_SEPARATOR_EXAMPLE
     ),
     "flow": (
-        "Present the reply as a flow diagram drawn in plain text inside a single fenced code "
-        "block: at least %d steps or decisions as labels or boxes, joined by arrows (`→`, "
-        "`↓`, `-->`) in the order things happen. Not Mermaid: the terminal shows raw "
-        "source. One caption line outside the block is fine." % FLOW_MIN_STEPS
+        "Present the reply as a flow diagram drawn in plain text inside a fenced code block: "
+        "at least %d steps or decisions as labels or boxes, joined by arrows (`%s`, `%s`, "
+        "`-->`) in the order things happen. Not Mermaid: the terminal shows raw source. One "
+        "caption line outside the block is fine."
+        % (FLOW_MIN_STEPS, FLOW_ARROW_GLYPHS[0], FLOW_ARROW_GLYPHS[1])
     ),
     "block": (
-        "Present the reply as a block diagram in plain text inside a single fenced code block: "
-        "two or more labeled boxes (`┌─┐ │ │ └─┘` or "
-        "`+--+`) with lines or arrows showing how they connect. Not Mermaid: the terminal "
-        "shows raw source. One caption line outside the block is fine."
+        "Present the reply as a block diagram in plain text inside a fenced code block: "
+        "%d or more labeled boxes (`%s─┐ │ │ └─┘` or `+--+`) with lines or arrows showing "
+        "how they connect. Not Mermaid: the terminal shows raw source. One caption line "
+        "outside the block is fine." % (BLOCK_MIN_BOXES, BOX_CORNERS[0])
     ),
 }
 
