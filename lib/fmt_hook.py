@@ -127,6 +127,11 @@ def _trace(handler, payload, result):
 
 
 def main(argv):
+    # CLAUDE_FMT_OFF=1 makes every hook do nothing for this process, as if the
+    # plugin were not installed: the escape hatch for scripts that parse
+    # Claude's output while a mode is set.
+    if os.environ.get("CLAUDE_FMT_OFF") == "1":
+        return 0
     try:
         handler = HANDLERS.get(argv[1] if len(argv) > 1 else "")
         if handler is None:
