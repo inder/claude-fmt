@@ -7,7 +7,25 @@
           {
             "type": "command",
             "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/lib/fmt_hook.py", "expand"],
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/lib/fmt_hook.py",
+              "expand"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/lib/fmt_hook.py",
+              "inject"
+            ],
             "timeout": 5
           }
         ]
